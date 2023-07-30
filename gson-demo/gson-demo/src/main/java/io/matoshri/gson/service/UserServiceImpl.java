@@ -9,6 +9,7 @@ import io.matoshri.gson.repo.UserRepository;
 import io.matoshri.gson.util.Constants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -128,6 +129,9 @@ public class UserServiceImpl implements UserService {
     private List<UserDTO> getUsersFromJson() {
         List<UserDTO> userDTOS = new LinkedList<>();
         try {
+            if (StringUtils.isEmpty(jsonFilePath)) {
+                log.error("JSON File Path is empty");
+            }
             log.info("Parsing JSON from : {}", jsonFilePath);
             userDTOS = new Gson().fromJson(new FileReader(jsonFilePath), new TypeToken<List<UserDTO>>() {
             }.getType());
