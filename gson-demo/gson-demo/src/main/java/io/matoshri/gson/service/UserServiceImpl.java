@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -34,7 +35,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserDTO> saveFromJson() {
-        List<UserDTO> usersFromJson = getUsersFromJson(jsonFilePath);
+        List<UserDTO> usersFromJson = getUsersFromJson();
         List<User> users = userRepository.saveAll(usersFromJson.stream().map(this::convertToUser).collect(Collectors.toList()));
         log.info(Constants.SAVED_USER + users.size());
         return users.stream()
@@ -124,12 +125,13 @@ public class UserServiceImpl implements UserService {
         return userDTO;
     }
 
-    private List<UserDTO> getUsersFromJson(String jsonFilePath) {
-        log.info("Parsing JSON from : {}", jsonFilePath);
-        List<UserDTO> userDTOS = Collections.emptyList();
+    private List<UserDTO> getUsersFromJson() {
+        List<UserDTO> userDTOS = new LinkedList<>();
         try {
-           userDTOS = new Gson().fromJson(new FileReader(jsonFilePath), new TypeToken<List<UserDTO>>(){}.getType());
-           log.info("Parsed records: {}", userDTOS.size());
+            log.info("Parsing JSON from : {}", jsonFilePath);
+            userDTOS = new Gson().fromJson(new FileReader(jsonFilePath), new TypeToken<List<UserDTO>>() {
+            }.getType());
+            log.info("Parsed records: {}", userDTOS.size());
         } catch (FileNotFoundException e) {
             log.error(ExceptionUtils.getRootCauseMessage(e));
             throw new RuntimeException("Can't read file");
